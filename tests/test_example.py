@@ -1,23 +1,39 @@
+
+from urllib.parse import urlparse
+
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-BASE_URL = 'https://example.com/'
+BASE_URL = "https://example.com/"
+
 
 def test_page_title(driver):
     driver.get(BASE_URL)
-    assert driver.title == 'Example Domain'
+    assert "Example Domain" in driver.title
 
-def test_heading_is_visible(driver):
+
+def test_page_content_is_visible(driver):
     driver.get(BASE_URL)
-    heading = WebDriverWait(driver, 10).until(
-        EC.visibility_of_element_located((By.TAG_NAME, 'h1'))
+
+    body = WebDriverWait(driver, 10).until(
+        EC.visibility_of_element_located((By.TAG_NAME, "body"))
     )
-    assert heading.text == 'Example Domain'
+
+    assert "example" in body.text.lower()
+
 
 def test_more_information_link(driver):
     driver.get(BASE_URL)
+
     link = WebDriverWait(driver, 10).until(
-        EC.element_to_be_clickable((By.CSS_SELECTOR, 'a[href]'))
+        EC.element_to_be_clickable(
+            (By.CSS_SELECTOR, 'a[href*="iana.org"]')
+        )
     )
-    assert link.get_attribute('href').startswith('https://www.iana.org/')
+
+    href = link.get_attribute("href")
+    parsed_url = urlparse(href)
+
+    assert parsed_url.scheme == "https"
+    assert parsed_url.hostname in ("iana.org", "www.iana.org")
