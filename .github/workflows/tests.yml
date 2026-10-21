@@ -1,0 +1,25 @@
+name: Browser Tests
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+jobs:
+  selenium:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Run browser tests
+        env:
+          HEADLESS: '1'
+        run: pytest -v --html=report.html --self-contained-html
+      - name: Upload test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: selenium-test-report
+          path: report.html
