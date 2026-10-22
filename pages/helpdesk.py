@@ -1,4 +1,5 @@
 from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait, Select
 from selenium.webdriver.support import expected_conditions as EC
 
@@ -20,5 +21,10 @@ class HelpdeskPage:
 
     def filter(self, query):
         field = self.driver.find_element(By.ID, 'filter')
-        field.clear()
-        field.send_keys(query)
+        # Keyboard editing fires the same input events as a user, including an empty query.
+        platform = str(self.driver.capabilities.get('platformName', '')).lower()
+        modifier = Keys.COMMAND if 'mac' in platform else Keys.CONTROL
+        field.send_keys(modifier, 'a')
+        field.send_keys(Keys.BACKSPACE)
+        if query:
+            field.send_keys(query)
