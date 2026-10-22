@@ -4,3 +4,10 @@ __pycache__/
 *.pyc
 report.html
 .DS_Store
+
+.coverage
+coverage.xml
+junit.xml
+artifacts/
+.pytest_cache/
+__pycache__/
