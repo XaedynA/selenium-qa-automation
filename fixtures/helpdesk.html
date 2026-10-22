@@ -1,0 +1,14 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><title>Helpdesk QA Lab</title>
+<style>body{font:18px system-ui;background:#eef2f7;max-width:850px;margin:50px auto;color:#17324b}main{background:white;padding:32px;border-radius:16px}label{display:block;margin:16px 0}input,select,button{font:inherit;padding:10px}button{background:#17324b;color:white;border:0;border-radius:6px}li{padding:14px;border-bottom:1px solid #ddd}</style>
+<main><h1>Helpdesk QA Lab</h1><p>Local test fixture · synthetic tickets only</p>
+<form id="ticket-form"><label>Summary <input id="summary" required maxlength="120"></label><label>Priority <select id="priority"><option>Normal</option><option>High</option></select></label><button id="create">Create ticket</button></form>
+<p id="status" role="status" aria-live="polite"></p>
+<label>Filter tickets <input id="filter" type="search"></label><ul id="tickets"></ul><button id="reset">Reset tickets</button></main>
+<script>
+const tickets=[];const list=document.querySelector('#tickets');
+function render(){list.replaceChildren();for(const t of tickets.filter(t=>t.summary.toLowerCase().includes(document.querySelector('#filter').value.toLowerCase()))){const li=document.createElement('li');li.textContent=`${t.summary} — ${t.priority}`;list.append(li)}}
+document.querySelector('form').addEventListener('submit',e=>{e.preventDefault();const input=document.querySelector('#summary');if(!input.value.trim()){document.querySelector('#status').textContent='Enter a summary.';return}tickets.push({summary:input.value.trim(),priority:document.querySelector('#priority').value});render();input.value='';document.querySelector('#status').textContent='Ticket created.'});
+document.querySelector('#filter').addEventListener('input',render);
+document.querySelector('#reset').addEventListener('click',()=>{tickets.length=0;render();document.querySelector('#status').textContent='Tickets cleared.'});
+</script></html>

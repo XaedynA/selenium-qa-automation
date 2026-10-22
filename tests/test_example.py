@@ -1,3 +1,5 @@
+import pytest
+pytestmark = pytest.mark.external
 
 from urllib.parse import urlparse
 

@@ -1,54 +1,47 @@
-# Selenium QA Automation Portfolio
+# Selenium QA Automation — Helpdesk regression lab
 
-A beginner-friendly Python test automation project demonstrating Selenium WebDriver, pytest, explicit waits, assertions, reusable browser fixtures, and GitHub Actions CI.
+![Quality checks](https://github.com/XaedynA/selenium-qa-automation/actions/workflows/tests.yml/badge.svg)
 
-## What it tests
+A repeatable Selenium + pytest suite for a small, local helpdesk ticket workflow. Demonstrates page objects, positive and negative cases, data-driven tests, explicit waits, isolated browser sessions, failure screenshots, and CI evidence for QA and IT-support roles.
 
-Three browser tests on the public demonstration page [example.com](https://example.com):
+## Quick start
 
-1. Verifies the page title.
-2. Checks that the main heading is visible and correct.
-3. Verifies the More information link points to IANA.
-
-## Tech stack
-
-- Python 3.12+
-- Selenium WebDriver 4
-- pytest
-- pytest-html
-- GitHub Actions (headless Chrome)
-
-## Run locally
-
-Install Python and Google Chrome, then in the project folder:
+Install Python 3.12+ and Chrome, then:
 
 ```bash
-python3 -m venv .venv
+python -m venv .venv
 source .venv/bin/activate
 python -m pip install -r requirements.txt
-pytest -v --html=report.html --self-contained-html
+python -m pytest -v --html=report.html --self-contained-html
 ```
 
-For headless execution:
+Headless Chrome is the default. Use `HEADLESS=0` for visible execution. Selenium Manager obtains a compatible driver (network needed on first use). For preinstalled/offline tools, set `CHROME_BINARY` and `CHROMEDRIVER` to their executable paths. `CHROME_NO_SANDBOX=1` is only for an isolated container that requires it; normal runs preserve Chrome's sandbox.
+
+## Test plan
+
+| Case | Expected result |
+| --- | --- |
+| Create Normal/High priority tickets | Correct summary and priority, success status |
+| Empty/whitespace summary | No ticket created |
+| Case-insensitive search | Matching rows only; clearing restores all |
+| Reset | Removes all tickets |
+| HTML-like input | Displays as text; no executable markup |
+| Overlong summary | Browser enforces 120-character limit |
+
+`fixtures/helpdesk.html` is a deliberately small synthetic application, not a production helpdesk. Each test gets a fresh browser, so tests do not depend on order. The page object in `pages/helpdesk.py` centralizes interactions without hiding assertions. There are no hard-coded sleep calls.
+
+## Optional external smoke tests
+
+The original example.com checks remain available:
 
 ```bash
-HEADLESS=1 pytest -v
+python -m pytest --external -v
 ```
 
-Selenium Manager normally handles the ChromeDriver download automatically. Internet access may be required for the first run.
+These depend on internet access and an external site's uptime. Default CI runs only the local regression suite. Three external cases are reported as skipped in default runs.
 
-## CI
+## CI and failure evidence
 
-The GitHub Actions workflow runs the tests on pushes, pull requests, and manual dispatch. The generated HTML report is uploaded as an artifact. Look under the **Actions** tab for results.
+GitHub Actions runs on pushes, pull requests, and manual dispatch with a 10-minute timeout and read-only repository permissions. Every run uploads HTML/JUnit reports; failing browser cases capture PNG screenshots in `artifacts/`. Artifacts expire after 14 days. Do not point screenshot-enabled tests at sensitive production data.
 
-## Learning goals
-
-This portfolio sample demonstrates how to structure repeatable automated UI tests. The tests use a public sample website and do not exercise authentication or production systems.
-
-## Status
-
-Starter project prepared for local and CI execution. **Tests have not been executed in this packaging environment.** Check the Actions tab after publishing to confirm they pass.
-
-## Interview talking points
-
-Explain why explicit waits reduce flaky tests, why browser setup is handled by a pytest fixture, what assertions verify, and how headless tests run in CI. Review and run the tests yourself before describing the project as your own practical experience.
+For a failure, open the HTML report, inspect the screenshot, reproduce the exact case, then determine whether the problem is an assertion, fixture behavior, or browser setup. A driver startup failure is not a passing test. The fixture always quits an initialized browser even after a failed test.
